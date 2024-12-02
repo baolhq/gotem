@@ -1,0 +1,32 @@
+[stash]             # General configurations
+backup = false      # Replace existing files without backup
+create = true       # Automatically create missing directories or files
+dotpath = "stash"   # Root directory for storing dotfiles
+uselink = false     # Whether the program should copy or create symlinks
+keepdot = false     # Remove leading '.' when storing in the stash
+
+[stash.default]     # Profile-specific configurations, overwrite general configs
+backup = true
+dotpath = "default"
+
+[stash.default.nvim]
+local_path = "~/.config/nvim"
+stash_path = "config/nvim"
+
+[stash.default.zsh]
+local_path = "~/.zshrc"
+stash_path = "zshrc"
+
+[stash.archlinux]
+dotpath = "archlinux"
+
+[stash.archlinux.nvim]
+local_path = "nvim"
+stash_path = "nvim"
+
+[stash.ubuntu]
+dotpath = "debian/ubuntu"
+
+[stash.ubuntu.zsh]
+local_path = "~/.settings/.zsh"
+stash_path = "settings/zsh"

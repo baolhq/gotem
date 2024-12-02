@@ -1,6 +1,6 @@
-# gotem - Dotfiles Management CLI
+# got'em - Dotfiles Management CLI
 
-> gotem is a command-line interface (CLI) tool for managing and organizing your dotfiles in a clean and efficient way. It allows you to easily back up, restore, and sync your dotfiles across different systems using a configuration-driven approach.
+> got'em is a command-line interface (CLI) tool for managing and organizing your dotfiles in a clean and efficient way. It allows you to easily back up, restore, and sync your dotfiles across different systems using a configuration-driven approach.
 
 ### Features
 
@@ -10,11 +10,11 @@
 - Symlink or Copy: Choose whether to symlink or copy dotfiles to their respective locations.
 - Automatic Directory Creation: Automatically create missing directories or files for a seamless workflow.
 
-### Installation
+### Building from source
 
 ##### Prerequisites
 
-- Go 1.18+: Make sure you have Go installed on your system. You can check your Go version with:
+- Go: Make sure you have Go installed on your system. You can check your Go version with:
 
 ```bash
 go version
@@ -29,25 +29,21 @@ git clone https://github.com/baolhq/gotem.git
 cd gotem
 ```
 
+##### Install dependencies
+
+```bash
+go get
+```
+
 ##### Build the Application
 
 ```bash
-go build -o gotem .
+go build -o dist/gotem .
 ```
-
-##### Install the Application
-
-Alternatively, you can install the application globally:
-
-```bash
-go install
-```
-
-After the installation, you can use `gotem` from anywhere in your terminal.
 
 ### Configuration
 
-The configuration for gotem is stored in a TOML file, typically named `config.toml`. This file contains settings for backing up dotfiles, specifying directories for file storage, and managing profiles. Here's an example of a basic configuration:
+The configuration for got'em is stored in a TOML file, typically named `config.toml`. This file contains settings for backing up dotfiles, specifying directories for file storage, and managing profiles. Here's an example of a basic configuration:
 
 ```toml
 [stash]  # General configurations
