@@ -1,4 +1,4 @@
-# got'em - Dotfiles Management CLI
+# got'em - Go-based Tool for Efficient Management
 
 > got'em is a command-line interface (CLI) tool for managing and organizing your dotfiles in a clean and efficient way. It allows you to easily back up, restore, and sync your dotfiles across different systems using a configuration-driven approach.
 
