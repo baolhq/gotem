@@ -41,7 +41,7 @@ func Execute() {
 func AddCmd() *cobra.Command {
 	return &cobra.Command{
 		Example: "gotem add ~/.bashrc ~/.vimrc",
-		Use:     "add files...",
+		Use:     "add file ...",
 		Short:   "Adds file(s) to the stash for tracking.",
 		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -55,7 +55,7 @@ func AddCmd() *cobra.Command {
 func RemoveCmd() *cobra.Command {
 	return &cobra.Command{
 		Example: "gotem remove ~/.bashrc",
-		Use:     "remove [files...]",
+		Use:     "remove [file ...]",
 		Short:   "Removes tracked file(s) from the stash.",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
@@ -72,7 +72,7 @@ func RemoveCmd() *cobra.Command {
 func LinkCmd() *cobra.Command {
 	return &cobra.Command{
 		Example: "gotem link",
-		Use:     "link",
+		Use:     "link [file ...]",
 		Short:   "Create symlink in the stash to local file(s).",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
@@ -89,7 +89,7 @@ func LinkCmd() *cobra.Command {
 func UnlinkCmd() *cobra.Command {
 	return &cobra.Command{
 		Example: "gotem unlink",
-		Use:     "unlink",
+		Use:     "unlink [file ...]",
 		Short:   "Remove symlink from the stash that point to local file(s).",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
@@ -106,7 +106,7 @@ func UnlinkCmd() *cobra.Command {
 func StatusCmd() *cobra.Command {
 	return &cobra.Command{
 		Example: "gotem status ~/.bashrc",
-		Use:     "status",
+		Use:     "status [file ...]",
 		Short:   "Show differences between local files and the stash.",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
@@ -132,7 +132,7 @@ func ListCmd() *cobra.Command {
 
 func UpdateCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "update",
+		Use:   "update [file ...]",
 		Short: "Update the stash with local file(s).",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
@@ -148,7 +148,7 @@ func UpdateCmd() *cobra.Command {
 
 func InstallCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "install",
+		Use:   "install [file ...]",
 		Short: "Install files from the stash into your machine.",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
