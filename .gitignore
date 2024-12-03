@@ -1,2 +1,12 @@
-dist/
+# IDE configs
+.idea/
+.run/
+.vscode/
 
+# Executables
+/gotem.exe
+/gotem
+
+# All stash except the default
+stash/
+!stash/main/
