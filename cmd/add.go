@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pelletier/go-toml"
 	"github.com/spf13/cobra"
 )
 
@@ -22,26 +21,38 @@ func AddCmd() *cobra.Command {
 		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			// Load configuration
-			configPath := "./config.toml"
-			config, err := toml.LoadFile(configPath)
+			configPath := "./config.json"
+			config, err := lib.LoadConfig(configPath)
 			if err != nil {
-				fmt.Printf("Error loading config.toml: %v\n", err)
+				fmt.Printf("Error loading config.json: %v\n", err)
 				return
 			}
 
-			// Read global stash settings
-			stashConfig := config.Get("stash").(*toml.Tree)
-			dotpath := stashConfig.GetDefault("dotpath", "stash").(string)
-			keepdot := stashConfig.GetDefault("keepdot", false).(bool)
+			// Get profile or default to "main"
+			if profile == "" {
+				profile = "main"
+			}
 
-			// Determine whether to create directories (global vs. command flag)
-			create := stashConfig.GetDefault("create", true).(bool)
+			// Read global create setting, override with command flag if set
+			create := config.Create
 			if cmd.Flags().Changed("create") {
 				create = createFlag
 			}
 
 			// Construct stash directory path
-			stashDir := filepath.Join(dotpath, profile)
+			profileConfig, exists := config.Profiles[profile]
+			if !exists {
+				profileConfig = lib.Profile{
+					Dotpath: new(string),
+				}
+			}
+
+			stashDir := config.Dotpath
+			if profileConfig.Dotpath != nil {
+				stashDir = *profileConfig.Dotpath
+			}
+			stashDir = filepath.Join(stashDir, profile)
+
 			if create {
 				if err := os.MkdirAll(stashDir, os.ModePerm); err != nil {
 					fmt.Printf("Error creating profile directory %s: %v\n", stashDir, err)
@@ -65,11 +76,10 @@ func AddCmd() *cobra.Command {
 
 				// Adjust the destination path based on keepdot setting
 				baseName := filepath.Base(srcPath)
-				if !keepdot && strings.HasPrefix(baseName, ".") {
+				if !config.Keepdot && strings.HasPrefix(baseName, ".") {
 					baseName = strings.TrimPrefix(baseName, ".")
 				}
-				dstDir, _ := lib.ExpandPath(stashDir)
-				dstPath := filepath.Join(dstDir, baseName)
+				dstPath := filepath.Join(stashDir, baseName)
 
 				// Copy file or directory
 				if info.IsDir() {
@@ -86,13 +96,19 @@ func AddCmd() *cobra.Command {
 					}
 				}
 
-				// Update configuration for the profile
-				err = lib.UpdateConfig(srcPath, baseName, profile)
+				// Update the configuration
+				err = lib.UpdateConfig(config, profile, srcPath, baseName, info.IsDir())
 				if err != nil {
 					fmt.Printf("Error updating config for %s: %v\n", srcPath, err)
 				}
 
 				fmt.Printf("Successfully added %s to stash %s.\n", srcPath, profile)
+			}
+
+			// Save the updated configuration
+			err = lib.SaveConfig(configPath, config)
+			if err != nil {
+				fmt.Printf("Error saving updated config: %v\n", err)
 			}
 		},
 	}

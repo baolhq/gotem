@@ -1,20 +1,13 @@
 package lib
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/pelletier/go-toml"
 )
-
-// IsRoot Check if the program running under root privilege
-func IsRoot() bool {
-	return os.Getuid() == 0
-}
 
 func ExpandPath(path string) (string, error) {
 	if strings.HasPrefix(path, "~") {
@@ -97,51 +90,76 @@ func CopyDir(src, dst string) error {
 	})
 }
 
-// Helper function to sanitize the key
-func sanitizeKey(key string) string {
-	// Remove special characters like dots or slashes from the key
-	return strings.ReplaceAll(key, ".", "")
+// LoadConfig reads and parses the JSON configuration file.
+func LoadConfig(filePath string) (*Config, error) {
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open config file: %w", err)
+	}
+	defer file.Close()
+
+	var config Config
+	decoder := json.NewDecoder(file)
+	if err := decoder.Decode(&config); err != nil {
+		return nil, fmt.Errorf("failed to decode JSON: %w", err)
+	}
+
+	return &config, nil
 }
 
-func UpdateConfig(originalPath, stashPath, profile string) error {
-	configPath := "./config.toml" // Path to your configuration file
-
-	// Load the existing configuration
-	config, err := toml.LoadFile(configPath)
-	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
-	}
-
-	// Get the base name of the file/directory and sanitize it
-	baseName := filepath.Base(originalPath)
-	sanitizedKey := sanitizeKey(baseName)
-
-	// Profile section key
-	profileKey := fmt.Sprintf("stash.%s", profile)
-
-	// Add profile section if it doesn't exist
-	if !config.Has(profileKey) {
-		config.Set(profileKey+".dotpath", profile)
-	}
-
-	// Define the full key under the profile
-	fullKey := fmt.Sprintf("%s.%s", profileKey, sanitizedKey)
-	config.Set(fullKey+".local_path", originalPath)
-	config.Set(fullKey+".stash_path", stashPath)
-
-	// Save the updated configuration
-	f, err := os.Create(configPath)
+// SaveConfig writes the configuration back to the JSON file.
+func SaveConfig(filePath string, config *Config) error {
+	file, err := os.Create(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to create config file: %w", err)
 	}
-	defer Close(f)
+	defer file.Close()
 
-	_, err = config.WriteTo(f)
-	if err != nil {
-		return fmt.Errorf("failed to write to config file: %w", err)
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ") // Pretty-print with indentation
+	if err := encoder.Encode(config); err != nil {
+		return fmt.Errorf("failed to encode JSON: %w", err)
 	}
 
 	return nil
+}
+
+// UpdateConfig updates the configuration with new entries for a given profile.
+func UpdateConfig(config *Config, profileName, srcPath, dstPath string, isDir bool) error {
+	// Ensure the profile exists
+	profile, exists := config.Profiles[profileName]
+	if !exists {
+		profile = Profile{
+			Directories: make(map[string]Entry),
+			Files:       make(map[string]Entry),
+		}
+	}
+
+	// Sanitize key names
+	key := sanitizeKey(filepath.Base(srcPath))
+
+	// Update the appropriate map
+	if isDir {
+		profile.Directories[key] = Entry{
+			Dst: dstPath,
+			Src: srcPath,
+		}
+	} else {
+		profile.Files[key] = Entry{
+			Dst: dstPath,
+			Src: srcPath,
+		}
+	}
+
+	// Save the updated profile back to the configuration
+	config.Profiles[profileName] = profile
+
+	return nil
+}
+
+// Helper function to sanitize keys
+func sanitizeKey(key string) string {
+	return strings.ReplaceAll(key, ".", "_")
 }
 
 func Close(f *os.File) {
@@ -153,18 +171,11 @@ func Close(f *os.File) {
 	}(f)
 }
 
-func PrettyPrint() {
-	file, err := os.Open("config.toml")
+func PrettyPrint(config *Config) {
+	data, err := json.MarshalIndent(config, "", "  ")
 	if err != nil {
-		log.Fatalf("Failed to open file: %v", err)
+		fmt.Printf("Error pretty-printing config: %v\n", err)
+		return
 	}
-	defer Close(file)
-
-	var config Config
-	decoder := toml.NewDecoder(file)
-	if err := decoder.Decode(&config); err != nil {
-		log.Fatalf("Failed to decode TOML: %v", err)
-	}
-
-	fmt.Printf("Parsed config:\n%v\n", config)
+	fmt.Println(string(data))
 }

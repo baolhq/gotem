@@ -1,0 +1,30 @@
+{
+  "backup": false,
+  "create": true,
+  "dotpath": "stash",
+  "uselink": false,
+  "keepdot": false,
+  "profiles": {
+    "archlinux": {
+      "backup": true,
+      "dotpath": "archlinux",
+      "keepdot": false,
+      "directories": {
+        "nvim": {
+          "dst": "~/.config/nvim",
+          "src": "config/nvim"
+        },
+        "waybar": {
+          "dst": "~/.config/waybar",
+          "src": "config/waybar"
+        }
+      },
+      "files": {
+        "example.txt": {
+          "dst": "~/example.txt",
+          "src": "example.txt"
+        }
+      }
+    }
+  }
+}

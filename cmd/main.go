@@ -16,16 +16,17 @@ func Execute() {
 
 	rootCmd.AddCommand(
 		AddCmd(),
-		RemoveCmd(),
-		LinkCmd(),
-		UnlinkCmd(),
-		StatusCmd(),
-		ListCmd(),
-		UpdateCmd(),
-		InstallCmd(),
 		BackupCmd(),
+		ConfigCmd(),
+		InstallCmd(),
+		LinkCmd(),
+		ListCmd(),
+		RemoveCmd(),
 		RestoreCmd(),
+		StatusCmd(),
 		TestCmd(),
+		UnlinkCmd(),
+		UpdateCmd(),
 	)
 
 	if err := rootCmd.Execute(); err != nil {
