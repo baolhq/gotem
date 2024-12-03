@@ -101,34 +101,47 @@ func (s *Stash) UnmarshalTOML(data any) error {
 	return nil
 }
 
+func (c Config) String() string {
+	return fmt.Sprintf("Stash:\n%v\n", c.Stash)
+}
+
 func (s Stash) String() string {
 	var profilesStr []string
 	for key, profile := range s.Profiles {
-		profilesStr = append(profilesStr, fmt.Sprintf("Profile: %s\n%s", key, profile.String()))
+		profilesStr = append(profilesStr, fmt.Sprintf("\n    %s\n%s", key, profile.String()))
 	}
-	return fmt.Sprintf("Backup: %v\nCreate: %v\nDotpath: %s\nUselink: %v\nKeepdot: %v\nProfiles:\n%s",
-		s.Backup, s.Create, s.Dotpath, s.Uselink, s.Keepdot, strings.Join(profilesStr, "\n"))
+	return fmt.Sprintf("  Backup: %v\n  Create: %v\n  Dotpath: %s\n  Uselink: %v\n  Keepdot: %v\n  Profiles:%s",
+		s.Backup, s.Create, s.Dotpath, s.Uselink, s.Keepdot, strings.Join(profilesStr, ""))
 }
 
-// String method for ProfileConfig
 func (p Profile) String() string {
 	var filesStr []string
 	for key, file := range p.Files {
 		filesStr = append(filesStr, fmt.Sprintf("  %s: %s", key, file.String()))
 	}
 
-	var backupStr, dotpathStr string
+	var backupStr, createStr, dotpathStr, keepdotStr, useLinkStr string
 	if p.Backup != nil {
-		backupStr = fmt.Sprintf("Backup: %v", *p.Backup)
+		backupStr = fmt.Sprintf("      Backup: %v\n", *p.Backup)
+	}
+	if p.Create != nil {
+		createStr = fmt.Sprintf("      Create: %v\n", *p.Create)
 	}
 	if p.Dotpath != nil {
-		dotpathStr = fmt.Sprintf("Dotpath: %s", *p.Dotpath)
+		dotpathStr = fmt.Sprintf("      Dotpath: %s\n", *p.Dotpath)
+	}
+	if p.Keepdot != nil {
+		keepdotStr = fmt.Sprintf("      Keep Dots: %v\n", *p.Keepdot)
+	}
+	if p.Uselink != nil {
+		useLinkStr = fmt.Sprintf("      Use link: %v\n", *p.Uselink)
 	}
 
-	return fmt.Sprintf("%s\n%s\nFiles:\n%s", backupStr, dotpathStr, strings.Join(filesStr, "\n"))
+	return fmt.Sprintf("%s%s%s%s%s      Files:\n      %s",
+		backupStr, createStr, dotpathStr,
+		keepdotStr, useLinkStr, strings.Join(filesStr, "\n      "))
 }
 
-// String method for FileConfig
 func (f File) String() string {
-	return fmt.Sprintf("LocalPath: %s\nStashPath: %s", f.LocalPath, f.StashPath)
+	return fmt.Sprintf("\n          LocalPath: %s\n          StashPath: %s", f.LocalPath, f.StashPath)
 }

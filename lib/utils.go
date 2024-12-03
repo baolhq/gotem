@@ -37,23 +37,13 @@ func CopyFile(src, dst string) error {
 	if err != nil {
 		return err
 	}
-	defer func(srcFile *os.File) {
-		err := srcFile.Close()
-		if err != nil {
-			fmt.Printf("Error closing file: %s\n", err)
-		}
-	}(srcFile)
+	defer Close(srcFile)
 
 	dstFile, err := os.Create(dst)
 	if err != nil {
 		return err
 	}
-	defer func(dstFile *os.File) {
-		err := dstFile.Close()
-		if err != nil {
-			fmt.Printf("Error closing file: %s\n", err)
-		}
-	}(dstFile)
+	defer Close(dstFile)
 
 	_, err = io.Copy(dstFile, srcFile)
 	if err != nil {
@@ -144,12 +134,7 @@ func UpdateConfig(originalPath, stashPath, profile string) error {
 	if err != nil {
 		return fmt.Errorf("failed to create config file: %w", err)
 	}
-	defer func(f *os.File) {
-		err := f.Close()
-		if err != nil {
-			fmt.Printf("Error closing file: %s\n", err)
-		}
-	}(f)
+	defer Close(f)
 
 	_, err = config.WriteTo(f)
 	if err != nil {
@@ -159,17 +144,21 @@ func UpdateConfig(originalPath, stashPath, profile string) error {
 	return nil
 }
 
-func Decode() {
-	file, err := os.Open("config.toml")
-	if err != nil {
-		log.Fatalf("Failed to open file: %v", err)
-	}
+func Close(f *os.File) {
 	defer func(file *os.File) {
 		err := file.Close()
 		if err != nil {
 			fmt.Printf("Error closing file: %s\n", err)
 		}
-	}(file)
+	}(f)
+}
+
+func PrettyPrint() {
+	file, err := os.Open("config.toml")
+	if err != nil {
+		log.Fatalf("Failed to open file: %v", err)
+	}
+	defer Close(file)
 
 	var config Config
 	decoder := toml.NewDecoder(file)
@@ -177,15 +166,5 @@ func Decode() {
 		log.Fatalf("Failed to decode TOML: %v", err)
 	}
 
-	fmt.Printf("Parsed config: %v\n", config)
-
-	profile, exists := config.Stash.Profiles["default"]
-	fmt.Println(exists)
-	if exists {
-		fmt.Println("Default Profile dotpath", *profile.Dotpath)
-		if nvimConfig, ok := profile.Files["nvim"]; ok {
-
-			fmt.Println("Neovim Local Path: ", nvimConfig.LocalPath)
-		}
-	}
+	fmt.Printf("Parsed config:\n%v\n", config)
 }
