@@ -11,8 +11,9 @@ import (
 
 func DiffCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "gotem diff [file ...]",
+		Use:   "diff [file ...]",
 		Short: "Show differences between local files and their stash versions",
+    Example: "gotem diff ~/.bashrc",
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			for _, file := range args {

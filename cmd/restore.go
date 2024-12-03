@@ -7,9 +7,9 @@ import (
 
 func RestoreCmd() *cobra.Command {
 	return &cobra.Command{
-		Example: "gotem restore ~/gotem.tar.gz ~/gotem",
 		Use:     "restore source [destination]",
 		Short:   "Restore a got'em backup",
+		Example: "gotem restore ~/gotem.tar.gz",
 		Args:    cobra.RangeArgs(1, 2),
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 1 {

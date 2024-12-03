@@ -16,9 +16,9 @@ func AddCmd() *cobra.Command {
 	var exclude []string
 
 	cmd := &cobra.Command{
-		Example: "gotem add ~/.config/hypr --exclude=\"~/.config/hypr/hyprland.conf ~/.config/hypr/hyprpaper.conf\"",
 		Use:     "add file ...",
 		Short:   "Adds file(s) to the stash for tracking",
+		Example: "gotem add ~/.bashrc ~/.vimrc",
 		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			// Collect all exclusion paths (split space-separated values)

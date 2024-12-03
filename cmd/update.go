@@ -7,8 +7,9 @@ import (
 
 func UpdateCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "gotem update [file ...]",
+		Use:   "update [file ...]",
 		Short: "Update the stash with local file(s)",
+    Example: "gotem update ~/.bashrc",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
 				fmt.Println("Updating all files...")

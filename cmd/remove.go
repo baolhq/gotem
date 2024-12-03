@@ -7,9 +7,9 @@ import (
 
 func RemoveCmd() *cobra.Command {
 	return &cobra.Command{
-		Example: "gotem remove ~/.bashrc",
 		Use:     "remove [file ...]",
 		Short:   "Removes tracked file(s) from the stash",
+    Example: "gotem remove ~/.bashrc",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
 				fmt.Println("Removing all files?")

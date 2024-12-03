@@ -14,9 +14,9 @@ func ConfigCmd() *cobra.Command {
 	var unsetOptions []string
 
 	cmd := &cobra.Command{
-		Use:     "gotem config",
+		Use:     "config",
 		Short:   "Manage got'em configurations",
-		Example: "gotem config --set backup=true",
+    Example: "gotem config --set backup=true",
 		Run: func(cmd *cobra.Command, args []string) {
 			// Load configuration
 			configPath := "./config.json"
