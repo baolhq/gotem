@@ -26,6 +26,7 @@ func ConfigCmd() *cobra.Command {
 				return
 			}
 
+			// Handle setting options
 			if len(setOptions) > 0 {
 				profileName := "main"
 				if profile != "" {
@@ -43,7 +44,6 @@ func ConfigCmd() *cobra.Command {
 				profileConfig := config.Profiles[profileName]
 
 				for key, value := range setOptions {
-					// Parse the value
 					var parsedVal interface{}
 					if value == "true" || value == "false" {
 						parsedVal = value == "true"
@@ -53,7 +53,6 @@ func ConfigCmd() *cobra.Command {
 						parsedVal = value
 					}
 
-					// Update the appropriate setting
 					switch key {
 					case "backup":
 						boolVal := parsedVal.(bool)
@@ -75,10 +74,10 @@ func ConfigCmd() *cobra.Command {
 					}
 				}
 
-				// Save the updated profile back to the configuration
 				config.Profiles[profileName] = profileConfig
 			}
 
+			// Handle unsetting options
 			if len(unsetOptions) > 0 {
 				if profile == "" {
 					fmt.Println("Unset operation requires a specific profile. Use --profile.")
@@ -108,29 +107,31 @@ func ConfigCmd() *cobra.Command {
 					}
 				}
 
-				// Save the updated profile back to the configuration
 				config.Profiles[profile] = profileConfig
 			}
 
-			// Save the updated configuration
+			// Save updated configuration
 			if err := lib.SaveConfig(configPath, config); err != nil {
 				fmt.Printf("Error saving config.json: %v\n", err)
 				return
 			}
 
-			// Display profile-specific or global configurations
+			// Display configurations
 			if profile != "" {
 				if profileConfig, exists := config.Profiles[profile]; exists {
+					// Display only the specific profile
 					fmt.Printf("Configurations for \"%s\":\n", profile)
-					lib.PrettyPrint(&lib.Config{
-						Profiles: map[string]lib.Profile{
-							profile: profileConfig,
-						},
-					})
+					data, err := json.MarshalIndent(profileConfig, "", "  ")
+					if err != nil {
+						fmt.Printf("Error formatting profile: %v\n", err)
+						return
+					}
+					fmt.Println(string(data))
 				} else {
 					fmt.Printf("Profile \"%s\" not found.\n", profile)
 				}
 			} else {
+				// Display full configuration
 				fmt.Println("Global configurations:")
 				lib.PrettyPrint(config)
 			}
@@ -144,3 +145,4 @@ func ConfigCmd() *cobra.Command {
 
 	return cmd
 }
+
