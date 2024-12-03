@@ -7,6 +7,6 @@
 /gotem.exe
 /gotem
 
-# All stash except the default
-stash/
-!stash/main/
+# All stash except the placeholder
+stash/*
+!stash/main
