@@ -7,8 +7,8 @@ import (
 
 func InstallCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "install [file ...]",
-		Short: "Install files from the stash into your machine.",
+		Use:   "gotem install [file ...]",
+		Short: "Install files from the stash into your machine",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
 				fmt.Println("Installing all files...")

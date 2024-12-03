@@ -18,6 +18,7 @@ func Execute() {
 		AddCmd(),
 		BackupCmd(),
 		ConfigCmd(),
+    DiffCmd(),
 		InstallCmd(),
 		LinkCmd(),
 		ListCmd(),

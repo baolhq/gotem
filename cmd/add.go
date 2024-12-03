@@ -13,13 +13,24 @@ import (
 func AddCmd() *cobra.Command {
 	var profile string
 	var createFlag bool
+	var exclude []string
 
 	cmd := &cobra.Command{
-		Example: "gotem add ~/.bashrc ~/.vimrc",
+		Example: "gotem add ~/.config/hypr --exclude=\"~/.config/hypr/hyprland.conf ~/.config/hypr/hyprpaper.conf\"",
 		Use:     "add file ...",
-		Short:   "Adds file(s) to the stash for tracking.",
+		Short:   "Adds file(s) to the stash for tracking",
 		Args:    cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
+			// Collect all exclusion paths (split space-separated values)
+			var excludePaths []string
+			for _, ex := range exclude {
+				// Split space-separated paths in each flag and append to excludePaths
+				excludePaths = append(excludePaths, strings.Fields(ex)...)
+			}
+
+			// Print the exclude paths to verify all are being captured
+			fmt.Println("Exclusion paths:", excludePaths)
+
 			// Load configuration
 			configPath := "./config.json"
 			config, err := lib.LoadConfig(configPath)
@@ -60,11 +71,35 @@ func AddCmd() *cobra.Command {
 				}
 			}
 
+			// Convert exclude paths to a map for faster lookups
+			excludeMap := make(map[string]struct{})
+			for _, path := range excludePaths {
+				absPath, err := lib.ExpandPath(path)
+				if err != nil {
+					fmt.Printf("Error expanding exclude path %s: %v\n", path, err)
+					continue
+				}
+
+				// Debug: Verify that both exclusion paths are captured
+				fmt.Printf("Expanded exclusion path: %s\n", absPath)
+
+				excludeMap[absPath] = struct{}{}
+			}
+
+			// Debug: Show all exclusions
+			fmt.Println("All exclusions:", excludeMap)
+
 			for _, file := range args {
 				// Expand leading '~' or '.' to absolute path
 				srcPath, err := lib.ExpandPath(file)
 				if err != nil {
 					fmt.Printf("Error expanding path %s: %v\n", file, err)
+					continue
+				}
+
+				// Skip excluded paths
+				if _, excluded := excludeMap[srcPath]; excluded {
+					fmt.Printf("Skipping excluded path: %s\n", srcPath)
 					continue
 				}
 
@@ -83,7 +118,7 @@ func AddCmd() *cobra.Command {
 
 				// Copy file or directory
 				if info.IsDir() {
-					err = lib.CopyDir(srcPath, dstPath)
+					err = lib.CopyDir(srcPath, dstPath, excludeMap)
 					if err != nil {
 						fmt.Printf("Error copying directory %s: %v\n", srcPath, err)
 						continue
@@ -113,11 +148,10 @@ func AddCmd() *cobra.Command {
 		},
 	}
 
-	// Add the -p or --profile flag
+	// Add --profile, --create and --exclude flag
 	cmd.Flags().StringVarP(&profile, "profile", "p", "main", "Specify the profile to use")
-
-	// Add the -c or --create flag
 	cmd.Flags().BoolVarP(&createFlag, "create", "c", true, "Whether the program should create new files or directories")
+	cmd.Flags().StringSliceVarP(&exclude, "exclude", "e", nil, "Specify space-separated paths to exclude from addition")
 
 	return cmd
 }

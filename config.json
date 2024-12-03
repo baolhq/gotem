@@ -25,6 +25,20 @@
           "src": "example.txt"
         }
       }
+    },
+    "main": {
+      "directories": {
+        "hypr": {
+          "dst": "/home/baolhq/.config/hypr",
+          "src": "hypr"
+        }
+      },
+      "files": {
+        "hyprpaper_conf": {
+          "dst": "/home/baolhq/.config/hypr/hyprpaper.conf",
+          "src": "hyprpaper.conf"
+        }
+      }
     }
   }
 }

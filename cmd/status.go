@@ -9,7 +9,7 @@ func StatusCmd() *cobra.Command {
 	return &cobra.Command{
 		Example: "gotem status ~/.bashrc",
 		Use:     "status [file ...]",
-		Short:   "Show differences between local files and the stash.",
+		Short:   "Show differences between local files and the stash",
 		Run: func(cmd *cobra.Command, args []string) {
 			if len(args) == 0 {
 				fmt.Println("Checking status...")

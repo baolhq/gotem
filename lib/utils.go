@@ -46,8 +46,7 @@ func CopyFile(src, dst string) error {
 	return dstFile.Sync()
 }
 
-func CopyDir(src, dst string) error {
-	// Get properties of the source directory
+func CopyDir(src, dst string, exclude map[string]struct{}) error {
 	srcInfo, err := os.Stat(src)
 	if err != nil {
 		return fmt.Errorf("failed to access source directory: %w", err)
@@ -66,6 +65,11 @@ func CopyDir(src, dst string) error {
 	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("error walking the file tree: %w", err)
+		}
+
+		// Skip excluded paths
+		if _, excluded := exclude[path]; excluded {
+			return nil
 		}
 
 		// Construct the destination path
@@ -138,16 +142,24 @@ func UpdateConfig(config *Config, profileName, srcPath, dstPath string, isDir bo
 	// Sanitize key names
 	key := sanitizeKey(filepath.Base(srcPath))
 
-	// Update the appropriate map
+	// Ensure maps are initialized
+	if profile.Directories == nil {
+		profile.Directories = make(map[string]Entry)
+	}
+	if profile.Files == nil {
+		profile.Files = make(map[string]Entry)
+	}
+
+	// Update the appropriate map, swap `src` with `dst`
 	if isDir {
 		profile.Directories[key] = Entry{
-			Dst: dstPath,
-			Src: srcPath,
+			Src: dstPath,
+			Dst: srcPath,
 		}
 	} else {
 		profile.Files[key] = Entry{
-			Dst: dstPath,
-			Src: srcPath,
+			Src: dstPath,
+			Dst: srcPath,
 		}
 	}
 

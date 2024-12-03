@@ -9,7 +9,7 @@ import (
 
 func TestCmd() *cobra.Command {
 	return &cobra.Command{
-		Use:   "test",
+		Use:   "gotem test",
 		Short: "Test program",
 		Run: func(cmd *cobra.Command, args []string) {
 			config, err := lib.LoadConfig("./config.json")
